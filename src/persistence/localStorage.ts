@@ -1,7 +1,7 @@
 import { createAtom } from "../core";
 import type { AtomOptions } from "../types";
 
-export function createPresistedAtom<T>(
+export function createPersistedAtom<T>(
     initialValue: T,
     key: string,
     options: Omit<AtomOptions, 'persist'> = {}
