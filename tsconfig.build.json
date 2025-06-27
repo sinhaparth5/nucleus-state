@@ -1,14 +1,21 @@
 {
   "extends": "./tsconfig.json",
-  "compolerOptions": {
+  "compilerOptions": {
     "noEmit": false,
     "declaration": true,
-    "declarationMap": true
+    "declarationMap": true,
+    "outDir": "./dist",
+    "rootDir": "./src"
   },
+  "include": [
+    "src/**/*"
+  ],
   "exclude": [
     "tests",
     "examples",
     "**/*.test.ts",
-    "**/*.test.tsx"
+    "**/*.test.tsx",
+    "**/*.spec.ts",
+    "**/*.spec.tsx"
   ]
 }

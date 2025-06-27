@@ -29,7 +29,8 @@
     "format": "prettier --write \"src/**/*.{ts,tsx}\",",
     "type-check": "tsc --noEmit",
     "prepare": "husky install",
-    "prepublishOnly": "npm run build && npm run test && npm run lint"
+    "prepublishOnly": "pnpm build && pnpm test && pnpm lint && pnpm type-check",
+    "type-check:build": "tsc --project tsconfig.build.json --noEmit"
   },
   "repository": {
     "type": "git",
