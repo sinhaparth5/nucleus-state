@@ -1,0 +1,14 @@
+{
+  "extends": "./tsconfig.json",
+  "compolerOptions": {
+    "noEmit": false,
+    "declaration": true,
+    "declarationMap": true
+  },
+  "exclude": [
+    "tests",
+    "examples",
+    "**/*.test.ts",
+    "**/*.test.tsx"
+  ]
+}
