@@ -1,0 +1,60 @@
+name: CI
+
+on:
+  push:
+    branches: [ master, develop ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  test:
+    name: Test & Build
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+        
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v2
+      with:
+        version: 8
+        
+    - name: Setup Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'pnpm'
+        
+    - name: Install dependencies
+      run: pnpm install --frozen-lockfile
+      
+    - name: Type check
+      run: pnpm type-check
+      
+    - name: Lint
+      run: pnpm lint
+      
+    - name: Run tests
+      run: pnpm test
+      
+    - name: Build
+      run: pnpm build
+      
+    - name: Check files exist
+      run: |
+        echo "Checking build output..."
+        ls -la dist/
+        test -f dist/index.js
+        test -f dist/index.mjs
+        test -f dist/index.d.ts
+        echo "✅ All build files exist"
+        
+    - name: Check bundle size
+      run: |
+        echo "Bundle sizes:"
+        du -h dist/*
