@@ -3,7 +3,7 @@
 > Lightweight React state management for UI components
 
 [![npm version](https://badge.fury.io/js/nucleus-state.svg)](https://badge.fury.io/js/nucleus-state)
-[![Build Status](https://github.com/YOUR_USERNAME/nucleus-state/workflows/CI/badge.svg)](https://github.com/YOUR_USERNAME/nucleus-state/actions)
+[![Build Status](https://github.com/YOUR_USERNAME/nucleus-state/workflows/CI/badge.svg)](https://github.com/sinhaparth5/nucleus-state/actions)
 [![Bundle Size](https://img.shields.io/bundlephobia/minzip/nucleus-state)](https://bundlephobia.com/package/nucleus-state)
 [![TypeScript](https://img.shields.io/badge/%3C%2F%3E-TypeScript-%230074c1.svg)](http://www.typescriptlang.org/)
 
