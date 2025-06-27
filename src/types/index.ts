@@ -9,6 +9,6 @@ export interface AtomOptions {
   persist?: string;
 }
 
-export type AtomListner<T> = (value: T) => void;
+export type AtomListener<T> = (value: T) => void;
 export type AtomSetter<T> = (value: T | ((prev: T) => T)) => void;
-epxort type AtomGetter<T> = () => T;
+export type AtomGetter<T> = () => T;
