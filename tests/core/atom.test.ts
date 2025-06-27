@@ -1,14 +1,20 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { createAtom } from '../../src/core/atom';
 
 // Mock localStorage
 const localStorageMock = (() => {
   let store: Record<string, string> = {};
   return {
-    getItem: (key: string) => store[key] || null,
-    setItem: (key: string, value: string) => { store[key] = value; },
-    removeItem: (key: string) => { delete store[key]; },
-    clear: () => { store = {}; },
+    getItem: (key: string): string | null => store[key] ?? null,
+    setItem: (key: string, value: string): void => {
+      store[key] = value;
+    },
+    removeItem: (key: string): void => {
+      delete store[key];
+    },
+    clear: (): void => {
+      store = {};
+    },
   };
 })();
 
@@ -41,10 +47,10 @@ describe('createAtom', () => {
   it('should notify subscribers when value changes', () => {
     const atom = createAtom(0);
     const listener = vi.fn();
-    
+
     atom.subscribe(listener);
     atom.set(5);
-    
+
     expect(listener).toHaveBeenCalledWith(5);
     expect(listener).toHaveBeenCalledTimes(1);
   });
@@ -52,10 +58,10 @@ describe('createAtom', () => {
   it('should not notify when value is the same', () => {
     const atom = createAtom(5);
     const listener = vi.fn();
-    
+
     atom.subscribe(listener);
     atom.set(5);
-    
+
     expect(listener).not.toHaveBeenCalled();
   });
 
@@ -63,11 +69,11 @@ describe('createAtom', () => {
     const atom = createAtom(0);
     const listener1 = vi.fn();
     const listener2 = vi.fn();
-    
+
     atom.subscribe(listener1);
     atom.subscribe(listener2);
     atom.set(10);
-    
+
     expect(listener1).toHaveBeenCalledWith(10);
     expect(listener2).toHaveBeenCalledWith(10);
   });
@@ -75,38 +81,38 @@ describe('createAtom', () => {
   it('should unsubscribe correctly', () => {
     const atom = createAtom(0);
     const listener = vi.fn();
-    
+
     const unsubscribe = atom.subscribe(listener);
     unsubscribe();
     atom.set(5);
-    
+
     expect(listener).not.toHaveBeenCalled();
   });
 
   it('should persist value to localStorage', () => {
     const atom = createAtom('initial', { persist: 'test-key' });
     atom.set('updated');
-    
+
     expect(localStorageMock.getItem('test-key')).toBe('"updated"');
   });
 
   it('should load persisted value from localStorage', () => {
     localStorageMock.setItem('test-key', '"persisted"');
     const atom = createAtom('initial', { persist: 'test-key' });
-    
+
     expect(atom.get()).toBe('persisted');
   });
 
   it('should handle non-serializable values gracefully', () => {
     const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
     const atom = createAtom(() => {}, { persist: 'test-key' });
-    
+
     atom.set(() => {});
-    
+
     expect(consoleSpy).toHaveBeenCalledWith(
-      expect.stringContaining('Cannot persist non-serializable value')
+      expect.stringContaining('Cannot persist non-serializable value'),
     );
-    
+
     consoleSpy.mockRestore();
   });
 });

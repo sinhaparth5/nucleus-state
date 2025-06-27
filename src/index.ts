@@ -9,10 +9,10 @@ export { createPersistedAtom, createSessionAtom } from './persistence';
 
 // Types
 export type {
-    Atom, 
-    AtomOptions,
-    AtomListener,
-    AtomGetter,
-    AtomSetter,
-    Unsubscribe
+  Atom,
+  AtomOptions,
+  AtomListener,
+  AtomGetter,
+  AtomSetter,
+  Unsubscribe,
 } from './types';
