@@ -1,6 +1,8 @@
-export { createAtom } from './core';
-export { createComputed } from './core';
+// Core exports
+export { createAtom, createComputed } from './core';
 
+// React exports
 export { useAtom, useAtomValue, useSetAtom } from './react';
 
+// Types
 export type { Atom, AtomOptions } from './types';
