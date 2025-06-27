@@ -7,8 +7,10 @@ export interface Atom<T> {
 export interface AtomOptions {
   name?: string;
   persist?: string;
+  storage?: Storage;
 }
 
 export type AtomListener<T> = (value: T) => void;
 export type AtomSetter<T> = (value: T | ((prev: T) => T)) => void;
 export type AtomGetter<T> = () => T;
+export type Unsubscribe = () => void;
