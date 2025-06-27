@@ -17,7 +17,7 @@
     "README.md"
   ],
   "scripts": {
-    "build":: "tsup",
+    "build": "tsup",
     "dev": "tsup --watch",
     "test": "vitest",
     "test:ui": "vitest --ui",
@@ -33,7 +33,7 @@
     "type": "git",
     "url": "git+https://github.com/sinhaparth5/nucleus-state.git"
   },
-  "keywords": "react,state,hooks,typescript,atoms",
+  "keywords": ["react,state,hooks,typescript,atoms"],
   "author": "Parth Sinha <sinhaparth555@gmail.com>",
   "license": "ISC",
   "type": "commonjs",
