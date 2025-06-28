@@ -3,9 +3,7 @@ import { defineConfig } from 'tsup';
 export default defineConfig({
   entry: ['src/index.ts'],
   format: ['cjs', 'esm'],
-  dts: {
-    tsconfig: './tsconfig.build.json',
-  },
+  dts: true,
   splitting: false,
   sourcemap: true,
   clean: true,
@@ -14,4 +12,11 @@ export default defineConfig({
   target: 'es2018',
   bundle: true,
   treeshake: true,
+  outDir: 'dist',
+  cjsInterop: true,
+  outExtension({ format }) {
+    return {
+      js: format === 'cjs' ? '.js' : '.mjs'
+    };
+  },
 });

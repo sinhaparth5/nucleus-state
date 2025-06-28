@@ -2,20 +2,20 @@
   "name": "nucleus-state",
   "version": "1.0.1",
   "description": "Lightweight React state management for UI components",
-  "main": "./dist/index.js",
-  "module": "./dist/index.mjs",
-  "types": "./dist/index.d.ts",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.mjs",
-      "require": "./dist/index.js"
+      "require": "./dist/index.js",
+      "default": "./dist/index.js"
     }
   },
+  "./package.json": "./package.json",
   "files": [
-    "dist",
-    "README.md",
-    "LISCENSE"
+    "dist"
   ],
   "scripts": {
     "build": "tsup",
@@ -41,7 +41,6 @@
   ],
   "author": "Parth Sinha <sinhaparth555@gmail.com>",
   "license": "BSD-2-Clause",
-  "type": "module",
   "bugs": {
     "url": "https://github.com/sinhaparth5/nucleus-state/issues"
   },

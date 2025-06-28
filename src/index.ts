@@ -8,11 +8,11 @@ export { useAtom, useAtomValue, useSetAtom } from './react';
 export { createPersistedAtom, createSessionAtom } from './persistence';
 
 // Types
-export type {
-  Atom,
-  AtomOptions,
-  AtomListener,
+export type { 
+  Atom, 
+  AtomOptions, 
+  AtomListener, 
+  AtomSetter, 
   AtomGetter,
-  AtomSetter,
-  Unsubscribe,
+  Unsubscribe 
 } from './types';
