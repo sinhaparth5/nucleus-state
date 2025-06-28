@@ -3,7 +3,7 @@
 > Lightweight React state management for UI components
 
 [![npm version](https://img.shields.io/npm/v/nucleus-state)](https://www.npmjs.com/package/nucleus-state)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![License: BSD-2-Clause](https://img.shields.io/badge/License-BSD%202--Clause-blue.svg)](https://opensource.org/licenses/BSD-2-Clause)
 [![Bundle Size](https://img.shields.io/bundlephobia/minzip/nucleus-state)](https://bundlephobia.com/package/nucleus-state)
 [![TypeScript](https://img.shields.io/badge/%3C%2F%3E-TypeScript-%230074c1.svg)](http://www.typescriptlang.org/)
 [![React](https://img.shields.io/badge/React-18+-61DAFB.svg)](https://reactjs.org/)
@@ -385,7 +385,7 @@ We welcome contributions! Here's how you can help:
 
 ## 📄 License
 
-MIT © [Parth Sinha](https://github.com/sinhaparth5)
+BSD-2-Clause © [Parth Sinha](https://github.com/sinhaparth5)
 
 ## 🙏 Acknowledgments
 
