@@ -1,6 +1,6 @@
 {
   "name": "nucleus-state",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Lightweight React state management for UI components",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
