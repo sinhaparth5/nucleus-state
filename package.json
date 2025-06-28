@@ -1,6 +1,6 @@
 {
   "name": "nucleus-state",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Lightweight React state management for UI components",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -40,7 +40,7 @@
     "react,state,hooks,typescript,atoms"
   ],
   "author": "Parth Sinha <sinhaparth555@gmail.com>",
-  "license": "ISC",
+  "license": "BSD-2-Clause",
   "type": "module",
   "bugs": {
     "url": "https://github.com/sinhaparth5/nucleus-state/issues"
