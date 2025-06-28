@@ -2,169 +2,195 @@
 
 > Lightweight React state management for UI components
 
-[![npm version](https://badge.fury.io/js/nucleus-state.svg)](https://badge.fury.io/js/nucleus-state)
-[![Build Status](https://github.com/YOUR_USERNAME/nucleus-state/workflows/CI/badge.svg)](https://github.com/sinhaparth5/nucleus-state/actions)
+[![npm version](https://img.shields.io/npm/v/nucleus-state)](https://www.npmjs.com/package/nucleus-state)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Bundle Size](https://img.shields.io/bundlephobia/minzip/nucleus-state)](https://bundlephobia.com/package/nucleus-state)
 [![TypeScript](https://img.shields.io/badge/%3C%2F%3E-TypeScript-%230074c1.svg)](http://www.typescriptlang.org/)
+[![React](https://img.shields.io/badge/React-18+-61DAFB.svg)](https://reactjs.org/)
 
-**Nucleus State** is a tiny (~2KB), TypeScript-first state management solution for React that eliminates prop drilling for small UI states. Perfect for modals, tabs, themes, and other component-level state that needs to be shared.
+**Nucleus State** is a tiny (~2KB), TypeScript-first state management solution for React that eliminates prop drilling for small UI states. Perfect for modals, tabs, themes, and other component-level state that needs to be shared across your application without the complexity of larger state management libraries.
 
-## ✨ Features
+## ✨ Why Nucleus State?
 
-- 🪶 **Tiny Bundle**: Less than 2KB gzipped
-- 🔥 **Zero Config**: No providers, no boilerplate
-- ⚛️ **React 18 Ready**: Built with `useSyncExternalStore`
-- 🏷️ **TypeScript First**: Full type inference out of the box
-- 🔧 **DevTools Friendly**: Debug atoms in development
-- 💾 **Persistence**: Optional localStorage integration
-- 🎯 **Focused**: Designed for UI state, not app-wide data
+- 🪶 **Tiny Bundle**: Less than 2KB gzipped - smaller than most icon libraries
+- 🔥 **Zero Config**: No providers, no boilerplate, no setup required
+- ⚛️ **React 18 Ready**: Built with modern React patterns using `useSyncExternalStore`
+- 🏷️ **TypeScript First**: Full type inference and excellent developer experience
+- 🔧 **DevTools Friendly**: Built-in debugging support in development
+- 💾 **Persistence**: Optional localStorage/sessionStorage integration
+- 🎯 **Focused**: Designed specifically for UI state, not complex app data
+- 🚀 **Performance**: Minimal re-renders with surgical updates
 
 ## 🚀 Quick Start
 
+### Installation
+
 ```bash
 npm install nucleus-state
+# or
+yarn add nucleus-state
+# or
+pnpm add nucleus-state
 ```
+
+### Basic Usage
+
+Create atoms for your state and use them anywhere in your component tree:
 
 ```tsx
 import { createAtom, useAtom } from 'nucleus-state';
 
-// Create an atom
+// Create an atom (do this outside your components)
 const modalAtom = createAtom(false);
 
 function OpenButton() {
-  const [isOpen, setOpen] = useAtom(modalAtom);
-  return <button onClick={() => setOpen(true)}>Open Modal</button>;
+  const [, setModalOpen] = useAtom(modalAtom);
+  return <button onClick={() => setModalOpen(true)}>Open Modal</button>;
 }
 
 function Modal() {
-  const [isOpen, setOpen] = useAtom(modalAtom);
+  const [isOpen, setModalOpen] = useAtom(modalAtom);
   
   if (!isOpen) return null;
   
   return (
-    <div className="modal">
-      <h2>Modal Content</h2>
-      <button onClick={() => setOpen(false)}>Close</button>
+    <div className="modal-backdrop">
+      <div className="modal">
+        <h2>Welcome!</h2>
+        <button onClick={() => setModalOpen(false)}>Close</button>
+      </div>
+    </div>
+  );
+}
+
+// Use them in completely different parts of your app - no prop drilling!
+function App() {
+  return (
+    <div>
+      <header>
+        <OpenButton />
+      </header>
+      <main>
+        {/* Other content */}
+      </main>
+      <Modal />
     </div>
   );
 }
 ```
 
-## 🎯 Perfect For
-
-- **Modal States**: Show/hide modals from anywhere
-- **Tab Navigation**: Active tab state across components  
-- **Theme Switching**: Dark/light mode that persists
-- **Form Wizards**: Step state in multi-step forms
-- **UI Toggles**: Sidebar collapse, dropdown states
-- **Shopping Carts**: Item counts and mini cart states
-
-## 📖 API Reference
+## 📖 Core API
 
 ### `createAtom(initialValue, options?)`
 
-Creates a new atom with an initial value.
+Creates a new atom with an initial value. Atoms are the basic unit of state in Nucleus.
 
 ```tsx
+// Simple values
 const countAtom = createAtom(0);
-const userAtom = createAtom({ name: 'John', age: 30 });
-const themeAtom = createAtom('light', { name: 'theme' });
-```
+const nameAtom = createAtom('');
+const themeAtom = createAtom('light');
 
-**Parameters:**
-- `initialValue`: Any value to initialize the atom
-- `options.name`: Optional name for debugging
+// Objects and arrays
+const userAtom = createAtom({ name: 'John', email: 'john@example.com' });
+const todosAtom = createAtom([]);
+
+// With options
+const persistedThemeAtom = createAtom('light', { 
+  persist: 'app-theme' // Automatically saves to localStorage
+});
+```
 
 ### `useAtom(atom)`
 
-Returns the current value and a setter function.
+The primary hook for reading and writing atom values. Returns a tuple similar to `useState`.
 
 ```tsx
-const [count, setCount] = useAtom(countAtom);
+const [value, setValue] = useAtom(countAtom);
 
-// Update with new value
-setCount(42);
+// Set new value
+setValue(42);
 
-// Update with function
-setCount(prev => prev + 1);
+// Update based on previous value
+setValue(prev => prev + 1);
 ```
 
-### `useAtomValue(atom)`
+### `useAtomValue(atom)` - Read Only
 
-Returns only the current value (read-only).
+When you only need to read the value without updating it:
 
 ```tsx
 const count = useAtomValue(countAtom);
 ```
 
-### `useSetAtom(atom)`
+### `useSetAtom(atom)` - Write Only
 
-Returns only the setter function.
+When you only need the setter function:
 
 ```tsx
 const setCount = useSetAtom(countAtom);
-setCount(42);
 ```
 
-### `createComputed(fn)`
-
-Creates a computed atom that derives its value from other atoms.
-
-```tsx
-const firstNameAtom = createAtom('John');
-const lastNameAtom = createAtom('Doe');
-
-const fullNameAtom = createComputed(() => 
-  `${firstNameAtom.get()} ${lastNameAtom.get()}`
-);
-
-const fullName = useAtomValue(fullNameAtom);
-```
-
-## 🏗️ Real-World Examples
+## 🎯 Perfect Use Cases
 
 ### Modal Management
 
-Instead of prop drilling modal state through multiple components:
+**The Problem**: Passing modal state through multiple component layers.
+
+**The Solution**:
+```tsx
+const modalAtom = createAtom(false);
+
+// Trigger from anywhere
+function NavButton() {
+  const setModalOpen = useSetAtom(modalAtom);
+  return <button onClick={() => setModalOpen(true)}>Settings</button>;
+}
+
+// Render anywhere
+function SettingsModal() {
+  const [isOpen, setModalOpen] = useAtom(modalAtom);
+  return isOpen ? <div>Settings content...</div> : null;
+}
+```
+
+### Theme Switching
+
+**Persistent theme that works across page reloads:**
 
 ```tsx
-// ❌ Before: Prop drilling nightmare
-function App() {
-  const [isModalOpen, setModalOpen] = useState(false);
+const themeAtom = createAtom('light', { persist: 'theme' });
+
+function ThemeToggle() {
+  const [theme, setTheme] = useAtom(themeAtom);
+  
   return (
-    <Layout>
-      <Header onOpenModal={() => setModalOpen(true)} />
-      <Content modalOpen={isModalOpen} />
-      <Modal isOpen={isModalOpen} onClose={() => setModalOpen(false)} />
-    </Layout>
+    <button onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}>
+      Switch to {theme === 'light' ? 'Dark' : 'Light'} Mode
+    </button>
   );
 }
 
-// ✅ After: Clean and simple
-const modalAtom = createAtom(false);
-
-function Header() {
-  const setModalOpen = useSetAtom(modalAtom);
-  return <button onClick={() => setModalOpen(true)}>Open Modal</button>;
-}
-
-function Modal() {
-  const [isOpen, setOpen] = useAtom(modalAtom);
-  return isOpen ? <div>Modal content</div> : null;
+function App() {
+  const theme = useAtomValue(themeAtom);
+  return <div data-theme={theme}>{/* Your app */}</div>;
 }
 ```
 
 ### Tab Navigation
 
+**Clean tab state management:**
+
 ```tsx
 const activeTabAtom = createAtom('overview');
 
-function TabHeader() {
+function TabButtons() {
   const [activeTab, setActiveTab] = useAtom(activeTabAtom);
+  const tabs = ['overview', 'details', 'settings'];
   
   return (
-    <div className="tabs">
-      {['overview', 'details', 'settings'].map(tab => (
+    <div className="tab-buttons">
+      {tabs.map(tab => (
         <button
           key={tab}
           className={activeTab === tab ? 'active' : ''}
@@ -180,195 +206,195 @@ function TabHeader() {
 function TabContent() {
   const activeTab = useAtomValue(activeTabAtom);
   
-  switch (activeTab) {
-    case 'overview': return <OverviewPanel />;
-    case 'details': return <DetailsPanel />;
-    case 'settings': return <SettingsPanel />;
-  }
-}
-```
-
-### Theme Persistence
-
-```tsx
-const themeAtom = createAtom('light', { persist: 'app-theme' });
-
-function ThemeToggle() {
-  const [theme, setTheme] = useAtom(themeAtom);
-  
   return (
-    <button onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}>
-      {theme === 'light' ? '🌙' : '☀️'}
-    </button>
-  );
-}
-
-function App() {
-  const theme = useAtomValue(themeAtom);
-  
-  return (
-    <div className={`app ${theme}`}>
-      <ThemeToggle />
-      {/* rest of app */}
+    <div className="tab-content">
+      {activeTab === 'overview' && <OverviewPanel />}
+      {activeTab === 'details' && <DetailsPanel />}
+      {activeTab === 'settings' && <SettingsPanel />}
     </div>
   );
 }
 ```
 
-### Form Wizard
+### Shopping Cart Counter
+
+**Shared cart state across components:**
 
 ```tsx
-const currentStepAtom = createAtom(1);
-const formDataAtom = createAtom({});
+const cartItemsAtom = createAtom([]);
 
-function StepIndicator() {
-  const currentStep = useAtomValue(currentStepAtom);
+function AddToCartButton({ product }) {
+  const [items, setItems] = useAtom(cartItemsAtom);
   
-  return (
-    <div className="steps">
-      {[1, 2, 3].map(step => (
-        <div key={step} className={step === currentStep ? 'active' : ''}>
-          Step {step}
-        </div>
-      ))}
-    </div>
-  );
+  const addItem = () => {
+    setItems(prev => [...prev, product]);
+  };
+  
+  return <button onClick={addItem}>Add to Cart</button>;
 }
 
-function NavigationButtons() {
-  const [currentStep, setCurrentStep] = useAtom(currentStepAtom);
-  
-  return (
-    <div>
-      {currentStep > 1 && (
-        <button onClick={() => setCurrentStep(prev => prev - 1)}>
-          Previous
-        </button>
-      )}
-      {currentStep < 3 && (
-        <button onClick={() => setCurrentStep(prev => prev + 1)}>
-          Next
-        </button>
-      )}
-    </div>
-  );
+function CartCounter() {
+  const items = useAtomValue(cartItemsAtom);
+  return <span className="cart-count">{items.length}</span>;
 }
 ```
 
-## 🛠️ Advanced Usage
+## 🔧 Advanced Features
 
-### Development Tools
+### Persistence
 
-In development mode, atoms are automatically tracked for debugging:
-
-```tsx
-const modalAtom = createAtom(false, { name: 'modalOpen' });
-
-// In browser console:
-window.__NUCLEUS_ATOMS__.get('modalOpen'); // Get current value
-window.__NUCLEUS_ATOMS__.list(); // List all atoms
-```
-
-### Custom Storage
+Automatically save atom values to localStorage or sessionStorage:
 
 ```tsx
-// Custom storage adapter
-const sessionStorageAdapter = {
-  getItem: (key: string) => sessionStorage.getItem(key),
-  setItem: (key: string, value: string) => sessionStorage.setItem(key, value),
-};
+// Auto-saves to localStorage
+const settingsAtom = createAtom(
+  { notifications: true, language: 'en' }, 
+  { persist: 'user-settings' }
+);
 
+// Custom storage (e.g., sessionStorage)
 const tempDataAtom = createAtom(
   { temp: true }, 
-  { persist: 'temp-data', storage: sessionStorageAdapter }
+  { 
+    persist: 'temp-data',
+    storage: {
+      getItem: (key) => sessionStorage.getItem(key),
+      setItem: (key, value) => sessionStorage.setItem(key, value)
+    }
+  }
 );
 ```
 
-### TypeScript Tips
+### Development Tools
+
+In development mode, Nucleus State provides debugging utilities:
 
 ```tsx
-// Explicit typing
+// Name your atoms for easier debugging
+const userAtom = createAtom(null, { name: 'currentUser' });
+
+// Access debug info in browser console
+console.log(window.__NUCLEUS_ATOMS__);
+```
+
+### TypeScript Support
+
+Nucleus State provides excellent TypeScript support with full type inference:
+
+```tsx
 interface User {
   id: number;
   name: string;
+  email: string;
 }
 
+// Type is automatically inferred
 const userAtom = createAtom<User | null>(null);
 
-// The hook automatically infers the type
+// Hooks maintain type safety
 const [user, setUser] = useAtom(userAtom); // user: User | null
+const userName = useAtomValue(userAtom)?.name; // string | undefined
 ```
 
 ## 🤔 When to Use Nucleus State
 
-**✅ Great for:**
-- Modal, dropdown, tooltip states
-- Active tabs, accordions, carousels  
-- Theme preferences, UI settings
-- Simple form state (current step, validation)
-- Shopping cart UI state
-- Temporary UI flags and toggles
+### ✅ Perfect For:
 
-**❌ Consider alternatives for:**
-- Complex business logic
-- Server state management (use React Query, SWR)
-- Large app-wide state (use Zustand, Redux)
-- Performance-critical state (use React.memo, useMemo)
+- **UI Component State**: Modals, dropdowns, tooltips, sidebars
+- **Navigation State**: Active tabs, current page, breadcrumbs
+- **User Preferences**: Theme, language, layout settings
+- **Form State**: Current step in wizards, temporary form data
+- **Shopping/Cart State**: Item counts, selected items
+- **Temporary Flags**: Loading states, error messages, notifications
 
-## 🏆 Comparison
+### ❌ Consider Alternatives For:
 
-| Feature | Nucleus State | useState | Context | Zustand | Jotai |
-|---------|---------------|----------|---------|---------|-------|
-| Bundle Size | ~2KB | 0KB | 0KB | ~8KB | ~13KB |
-| Setup | None | None | Provider | Store | Provider |
-| TypeScript | Excellent | Good | Manual | Good | Excellent |
-| DevTools | Basic | React | React | Advanced | Advanced |
-| Learning Curve | Minimal | None | Medium | Medium | Medium |
-| Use Case | UI State | Local | App-wide | App-wide | Granular |
+- **Server State**: Use React Query, SWR, or Apollo Client
+- **Complex Business Logic**: Consider Zustand, Redux Toolkit, or Valtio
+- **Large-Scale Applications**: Might benefit from more structured state management
+- **Performance-Critical State**: Use React's built-in optimizations first
+
+## 🏆 Comparison with Alternatives
+
+| Solution | Bundle Size | Setup Required | TypeScript | Learning Curve | Best For |
+|----------|-------------|----------------|------------|----------------|----------|
+| **Nucleus State** | ~2KB | None | Excellent | Minimal | UI State |
+| useState + Props | 0KB | None | Good | None | Local State |
+| React Context | 0KB | Provider | Manual | Medium | App-wide State |
+| Zustand | ~8KB | Store Creation | Good | Medium | App State |
+| Jotai | ~13KB | Provider | Excellent | Medium | Atomic State |
+| Redux Toolkit | ~50KB+ | Significant | Good | High | Enterprise Apps |
 
 ## 📋 Requirements
 
-- React 16.8+ (hooks support)
-- TypeScript 4.1+ (for best experience)
+- **React**: 16.8+ (hooks support required)
+- **TypeScript**: 4.1+ (recommended for best experience)
+- **Node.js**: 14+ (for development)
 
 ## 🧪 Testing
 
+Testing components that use Nucleus State is straightforward:
+
 ```tsx
-import { createAtom } from 'nucleus-state';
-import { renderHook, act } from '@testing-library/react';
+import { createAtom, useAtom } from 'nucleus-state';
+import { render, screen, fireEvent } from '@testing-library/react';
 
-test('atom updates correctly', () => {
-  const atom = createAtom(0);
-  const { result } = renderHook(() => useAtom(atom));
+const testAtom = createAtom(0);
 
-  act(() => {
-    result.current[1](1);
-  });
+function Counter() {
+  const [count, setCount] = useAtom(testAtom);
+  return (
+    <div>
+      <span>Count: {count}</span>
+      <button onClick={() => setCount(c => c + 1)}>Increment</button>
+    </div>
+  );
+}
 
-  expect(result.current[0]).toBe(1);
+test('counter increments correctly', () => {
+  render(<Counter />);
+  
+  expect(screen.getByText('Count: 0')).toBeInTheDocument();
+  
+  fireEvent.click(screen.getByText('Increment'));
+  
+  expect(screen.getByText('Count: 1')).toBeInTheDocument();
 });
 ```
 
+## 🚦 Getting Started Checklist
+
+1. **Install** Nucleus State: `npm install nucleus-state`
+2. **Create** your first atom outside a component
+3. **Use** `useAtom()` in your components
+4. **Replace** prop drilling with direct atom access
+5. **Add** persistence for user preferences
+6. **Enjoy** cleaner, more maintainable code!
+
 ## 🤝 Contributing
 
-We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
+We welcome contributions! Here's how you can help:
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+- 🐛 **Report bugs** by opening an issue
+- 💡 **Suggest features** via GitHub discussions
+- 📖 **Improve documentation** with pull requests
+- 🧪 **Add tests** for new features
+- ⭐ **Star the repo** to show your support
+
+[Contributing Guidelines](CONTRIBUTING.md) | [Code of Conduct](CODE_OF_CONDUCT.md)
 
 ## 📄 License
 
-MIT © [Your Name](https://github.com/YOUR_USERNAME)
+MIT © [Parth Sinha](https://github.com/sinhaparth5)
 
 ## 🙏 Acknowledgments
 
 - Inspired by [Jotai](https://jotai.org/) and [Valtio](https://valtio.pmnd.rs/)
-- Built with [tsup](https://tsup.egoist.sh/) and [Vitest](https://vitest.dev/)
-- Uses React's `useSyncExternalStore` for optimal performance
+- Built with modern React patterns and TypeScript
+- Thanks to the React team for `useSyncExternalStore`
 
 ---
 
-**Made with ❤️ for the React community**
+**Made with ❤️ for developers who love clean, simple state management**
+
+[Documentation](https://nucleus-state.dev) | [GitHub](https://github.com/sinhaparth5/nucleus-state) | [npm](https://www.npmjs.com/package/nucleus-state)
