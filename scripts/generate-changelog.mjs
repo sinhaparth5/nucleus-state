@@ -90,19 +90,25 @@ function buildEntry(commitSubjects) {
   return `## [${version}] - ${today}\n\n${body}\n`;
 }
 
-const existing = existsSync(changelogPath)
-  ? readFileSync(changelogPath, 'utf8')
-  : '# Changelog\n\nAll notable changes to this project will be documented in this file.\n';
+function removeVersionEntry(content, targetVersion) {
+  const escapedVersion = targetVersion.replace(/\./g, '\\.');
+  return content.replace(
+    new RegExp(`\\n## \\[${escapedVersion}]([\\s\\S]*?)(?=\\n## \\[|$)`, 'm'),
+    '\n',
+  );
+}
 
-const versionHeader = `## [${version}]`;
-const cleaned = existing.includes(versionHeader)
-  ? existing.replace(new RegExp(`## \\[${version.replace(/\./g, '\\.')}]([\\s\\S]*?)(?=\\n## \\[|$)`, 'm'), '').trimEnd()
-  : existing.trimEnd();
+const header = '# Changelog\n\nAll notable changes to this project will be documented in this file.';
+const existing = existsSync(changelogPath) ? readFileSync(changelogPath, 'utf8') : header;
+const bodyWithoutHeader = existing.replace(/^# Changelog\s*\n+All notable changes to this project will be documented in this file\.\s*/m, '').trim();
+const cleanedBody = removeVersionEntry(bodyWithoutHeader, version).trim();
 
 const previousTag = getPreviousTag(version);
 const commitSubjects = getCommitSubjects(previousTag);
 const newEntry = buildEntry(commitSubjects);
-const nextContent = `${cleaned}\n\n${newEntry}\n`;
+const nextContent = cleanedBody
+  ? `${header}\n\n${newEntry}\n${cleanedBody}\n`
+  : `${header}\n\n${newEntry}\n`;
 
 writeFileSync(changelogPath, nextContent);
 console.log(`Updated CHANGELOG.md for version ${version}`);
