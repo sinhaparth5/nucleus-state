@@ -39,6 +39,15 @@ describe('createAtom', () => {
     expect(atom.get()).toBe(15);
   });
 
+  it('resets back to the initial value', () => {
+    const atom = createAtom(10);
+    atom.set(25);
+
+    atom.reset();
+
+    expect(atom.get()).toBe(10);
+  });
+
   it('notifies subscribers', () => {
     const atom = createAtom(0);
     const listener = vi.fn();
@@ -59,6 +68,16 @@ describe('createAtom', () => {
     expect(listener).not.toHaveBeenCalled();
   });
 
+  it('does not notify on reset when already at the initial value', () => {
+    const atom = createAtom(5);
+    const listener = vi.fn();
+
+    atom.subscribe(listener);
+    atom.reset();
+
+    expect(listener).not.toHaveBeenCalled();
+  });
+
   it('unsubscribes correctly', () => {
     const atom = createAtom(0);
     const listener = vi.fn();
@@ -75,6 +94,16 @@ describe('createAtom', () => {
     atom.set('updated');
 
     expect(localStorage.getItem('test-key')).toBe('"updated"');
+  });
+
+  it('persists the initial value on reset', () => {
+    const atom = createAtom('initial', { persist: 'test-key' });
+    atom.set('updated');
+
+    atom.reset();
+
+    expect(atom.get()).toBe('initial');
+    expect(localStorage.getItem('test-key')).toBe('"initial"');
   });
 
   it('loads from localStorage', () => {

@@ -56,6 +56,45 @@ export function createAtom<T>(
 
   const listeners = new Set<AtomListener<T>>();
 
+  const notifyListeners = (): void => {
+    listeners.forEach(listener => {
+      try {
+        listener(value);
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.error('Error in atom listener:', error);
+      }
+    });
+  };
+
+  const persistValue = (): void => {
+    if (!persist || !storage) {
+      return;
+    }
+
+    try {
+      if (isSerializable(value)) {
+        storage.setItem(persist, JSON.stringify(value));
+      } else {
+        // eslint-disable-next-line no-console
+        console.warn(`Cannot persist non-serializable value in atom "${atomId}"`);
+      }
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.warn(`Failed to persist atom "${atomId}":`, error);
+    }
+  };
+
+  const setValue = (nextValue: T): void => {
+    if (Object.is(nextValue, value)) {
+      return;
+    }
+
+    value = nextValue;
+    persistValue();
+    notifyListeners();
+  };
+
   const atom: Atom<T> = {
     get(): T {
       return value;
@@ -63,37 +102,11 @@ export function createAtom<T>(
 
     set(newValue: T | ((prev: T) => T)): void {
       const nextValue = isFunction(newValue) ? newValue(value) : newValue;
+      setValue(nextValue);
+    },
 
-      if (Object.is(nextValue, value)) {
-        return; // No change
-      }
-
-      value = nextValue;
-
-      // Persist if configured
-      if (persist && storage) {
-        try {
-          if (isSerializable(value)) {
-            storage.setItem(persist, JSON.stringify(value));
-          } else {
-            // eslint-disable-next-line no-console
-            console.warn(`Cannot persist non-serializable value in atom "${atomId}"`);
-          }
-        } catch (error) {
-          // eslint-disable-next-line no-console
-          console.warn(`Failed to persist atom "${atomId}":`, error);
-        }
-      }
-
-      // Notify all subscribers
-      listeners.forEach(listener => {
-        try {
-          listener(value);
-        } catch (error) {
-          // eslint-disable-next-line no-console
-          console.error('Error in atom listener:', error);
-        }
-      });
+    reset(): void {
+      setValue(initialValue);
     },
 
     subscribe(listener: AtomListener<T>): Unsubscribe {

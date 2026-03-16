@@ -82,6 +82,10 @@ export function createComputed<T>(
       throw new Error('Cannot set value on computed atom');
     },
 
+    reset(): void {
+      throw new Error('Cannot reset value on computed atom');
+    },
+
     subscribe(listener: AtomListener<T>) {
       if (listeners.size === 0) {
         startTrackingDependencies();

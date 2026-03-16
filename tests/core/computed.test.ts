@@ -55,6 +55,13 @@ describe('createComputed', () => {
     expect(() => doubledAtom.set(10)).toThrow('Cannot set value on computed atom');
   });
 
+  it('throws when trying to reset a computed atom', () => {
+    const countAtom = createAtom(1);
+    const doubledAtom = createComputed([countAtom], () => countAtom.get() * 2);
+
+    expect(() => doubledAtom.reset()).toThrow('Cannot reset value on computed atom');
+  });
+
   it('stops notifying unsubscribed computed listeners', () => {
     const countAtom = createAtom(1);
     const doubledAtom = createComputed([countAtom], () => countAtom.get() * 2);

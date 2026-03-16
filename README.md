@@ -1,24 +1,28 @@
 # Nucleus State
 
-Lightweight React state management for UI components.
+Lightweight React state management for shared UI state.
 
 [![License: BSD-2-Clause](https://img.shields.io/badge/License-BSD%202--Clause-blue.svg)](https://opensource.org/licenses/BSD-2-Clause)
-[![TypeScript](https://img.shields.io/badge/%3C%2F%3E-TypeScript-%230074c1.svg)](http://www.typescriptlang.org/)
-[![React](https://img.shields.io/badge/React-19.1+-61DAFB.svg)](https://react.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-Ready-3178C6.svg)](https://www.typescriptlang.org/)
+[![React](https://img.shields.io/badge/React-19+-61DAFB.svg)](https://react.dev/)
 
-Nucleus State is a small TypeScript-first state library for React. It is focused on simple shared UI state like modals, tabs, theme toggles, counters, form steps, and temporary client-side preferences.
+Nucleus State is a small TypeScript-first state library for React. It is designed for state that needs to be shared across components without adding providers, reducers, or heavy store setup.
+
+It works well for:
+
+- modals and drawers
+- tabs and view state
+- theme and preference state
+- form steps and temporary UI data
+- small derived values built from existing atoms
 
 ## Installation
 
 ```bash
 npm install @sinhaparth5/nucleus-state
-# or
-pnpm add @sinhaparth5/nucleus-state
-# or
-yarn add @sinhaparth5/nucleus-state
 ```
 
-## Basic Usage
+## Quick Start
 
 ```tsx
 import { createAtom, useAtom } from '@sinhaparth5/nucleus-state';
@@ -46,11 +50,21 @@ function Modal() {
 }
 ```
 
+## Why Nucleus State
+
+- Provider-free API
+- Small surface area
+- TypeScript-first ergonomics
+- Read/write hooks that feel like React state
+- Built-in persistence helpers
+- Derived state with computed atoms
+- Development-time atom registry for debugging
+
 ## API
 
 ### `createAtom(initialValue, options?)`
 
-Creates an atom with `get`, `set`, and `subscribe`.
+Creates a mutable atom with `get()`, `set()`, `reset()`, and `subscribe()`.
 
 ```tsx
 const countAtom = createAtom(0);
@@ -59,8 +73,8 @@ const themeAtom = createAtom('light', { persist: 'theme' });
 
 Options:
 
-- `name`: debug label used in development
-- `persist`: storage key for persistence
+- `name`: debug label for development tooling
+- `persist`: storage key used for persistence
 - `storage`: custom storage object with `getItem` and `setItem`
 
 ### `useAtom(atom)`
@@ -69,13 +83,14 @@ Returns the current value and setter.
 
 ```tsx
 const [count, setCount] = useAtom(countAtom);
+
 setCount(1);
 setCount(prev => prev + 1);
 ```
 
 ### `useAtomValue(atom)`
 
-Reads the current value without returning a setter.
+Returns the current value only.
 
 ```tsx
 const theme = useAtomValue(themeAtom);
@@ -83,18 +98,35 @@ const theme = useAtomValue(themeAtom);
 
 ### `useSetAtom(atom)`
 
-Returns only the setter.
+Returns the setter only.
 
 ```tsx
 const setTheme = useSetAtom(themeAtom);
 ```
 
-### `createComputed(dependencies, compute)`
+### `atom.reset()`
 
-Creates a read-only derived atom that recomputes when one of its dependencies changes.
+Restores an atom to its original initial value.
 
 ```tsx
-import { createAtom, createComputed, useAtomValue } from '@sinhaparth5/nucleus-state';
+const countAtom = createAtom(0);
+
+countAtom.set(5);
+countAtom.reset();
+
+countAtom.get(); // 0
+```
+
+### `createComputed(dependencies, compute)`
+
+Creates a read-only derived atom that updates from other atoms.
+
+```tsx
+import {
+  createAtom,
+  createComputed,
+  useAtomValue,
+} from '@sinhaparth5/nucleus-state';
 
 const firstNameAtom = createAtom('Parth');
 const lastNameAtom = createAtom('Sinha');
@@ -113,14 +145,14 @@ function ProfileName() {
 You can also use the simple form:
 
 ```tsx
-const nowAtom = createComputed(() => Date.now());
+const timestampAtom = createComputed(() => Date.now());
 ```
 
-That form computes once and does not subscribe to other atoms automatically.
+That form computes once and does not subscribe to dependencies automatically.
 
 ## Persistence
 
-Persistence works in the browser and safely falls back when storage is unavailable, such as during SSR or Node-based execution.
+Atoms can persist state in browser storage and safely fall back when storage is unavailable.
 
 ```tsx
 const settingsAtom = createAtom(
@@ -129,13 +161,25 @@ const settingsAtom = createAtom(
 );
 ```
 
+For convenience, the package also exports:
+
+```tsx
+import {
+  createPersistedAtom,
+  createSessionAtom,
+} from '@sinhaparth5/nucleus-state';
+
+const themeAtom = createPersistedAtom('light', 'theme');
+const wizardAtom = createSessionAtom({ step: 1 }, 'wizard');
+```
+
 Custom storage is supported:
 
 ```tsx
-const tempDataAtom = createAtom(
-  { temp: true },
+const draftAtom = createAtom(
+  { value: '' },
   {
-    persist: 'temp-data',
+    persist: 'draft',
     storage: {
       getItem: key => sessionStorage.getItem(key),
       setItem: (key, value) => sessionStorage.setItem(key, value),
@@ -144,18 +188,9 @@ const tempDataAtom = createAtom(
 );
 ```
 
-Helper APIs are also exported:
-
-```tsx
-import { createPersistedAtom, createSessionAtom } from '@sinhaparth5/nucleus-state';
-
-const themeAtom = createPersistedAtom('light', 'theme');
-const wizardAtom = createSessionAtom({ step: 1 }, 'wizard');
-```
-
 ## Devtools
 
-In development builds, named atoms are exposed on `window.__NUCLEUS_ATOMS__`.
+In development, named atoms are exposed on `window.__NUCLEUS_ATOMS__`.
 
 ```tsx
 const userAtom = createAtom(null, { name: 'currentUser' });
@@ -164,28 +199,31 @@ console.log(window.__NUCLEUS_ATOMS__?.list());
 console.log(window.__NUCLEUS_ATOMS__?.get('currentUser'));
 ```
 
-## Types
+## TypeScript
 
-The package exports its atom and persistence types:
+The package is designed for strong type inference out of the box.
 
-- `Atom<T>`
-- `ReadonlyAtom<T>`
-- `AtomSetter<T>`
-- `AtomListener<T>`
-- `AtomGetter<T>`
-- `PersistStorage`
+```tsx
+interface User {
+  id: number;
+  name: string;
+}
+
+const userAtom = createAtom<User | null>(null);
+
+const [user, setUser] = useAtom(userAtom);
+const userName = useAtomValue(userAtom)?.name;
+```
 
 ## Examples
 
-Working example source files live in:
+Example source lives in:
 
 - `examples/basic-usage/App.tsx`
 - `examples/modal-management/App.tsx`
 - `examples/form-wizard/App.tsx`
 
-A runnable playground app also lives in `examples/playground`.
-
-Run it with:
+A runnable playground is available in `examples/playground`.
 
 ```bash
 pnpm example:dev
@@ -195,67 +233,6 @@ pnpm example:dev
 
 - React `^19.1.0`
 - TypeScript `4.1+`
-- Node.js `18+` for local development and CI
-
-## Testing
-
-```bash
-pnpm test --run
-pnpm lint
-pnpm type-check
-pnpm build
-```
-
-## Release
-
-GitHub Packages release happens only when you push a tag that matches the version in `package.json`.
-
-Before you tag a release, run:
-
-```bash
-pnpm release:prepare
-```
-
-That command:
-
-- refreshes `CHANGELOG.md`
-- runs lint, tests, type-check, library build, and playground build
-- validates that the current package version is ready for a matching `v<version>` tag
-
-Example:
-
-```bash
-git tag v1.0.3
-git push origin v1.0.3
-```
-
-That tag push runs the GitHub Actions release workflow, publishes to GitHub Packages, and creates the GitHub release.
-
-For npm registry publishing from your local CLI, use normal npm publish flow:
-
-```bash
-npm publish
-```
-
-If this is the first public publish for the scoped package on npm, you may need:
-
-```bash
-npm publish --access public
-```
-
-## Next Steps
-
-Recommended next work for the project:
-
-1. Add more edge-case tests for SSR, storage failures, computed unsubscribe behavior, and devtools exposure in development only.
-2. Make `createComputed` more robust by supporting dependency cleanup and clearer derived-state lifecycle behavior.
-3. Add a small runnable example app, not just example source files, so users can try the package quickly.
-4. Add a versioning workflow with changelog generation before wider public releases.
-5. Consider the next feature set only after the API is stable. Best candidates are `atom.reset()`, atom families, and serializer/deserializer support for persistence.
-
-## Contributing
-
-[Contributing Guidelines](CONTRIBUTING.md)
 
 ## License
 

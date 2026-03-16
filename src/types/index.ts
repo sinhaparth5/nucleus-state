@@ -18,6 +18,7 @@ export interface ReadonlyAtom<T> {
 export interface Atom<T> {
   get(): T;
   set(value: AtomUpdater<T>): void;
+  reset(): void;
   subscribe(listener: AtomListener<T>): Unsubscribe;
 }
 
