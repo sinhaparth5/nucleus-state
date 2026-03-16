@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true
+  },
+  "include": [
+    "examples/basic-usage/**/*",
+    "examples/form-wizard/**/*",
+    "examples/modal-management/**/*"
+  ],
+  "exclude": []
+}

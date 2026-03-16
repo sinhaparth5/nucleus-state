@@ -210,6 +210,18 @@ pnpm build
 
 GitHub Packages release happens only when you push a tag that matches the version in `package.json`.
 
+Before you tag a release, run:
+
+```bash
+pnpm release:prepare
+```
+
+That command:
+
+- refreshes `CHANGELOG.md`
+- runs lint, tests, type-check, library build, and playground build
+- validates that the current package version is ready for a matching `v<version>` tag
+
 Example:
 
 ```bash

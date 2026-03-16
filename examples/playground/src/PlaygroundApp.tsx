@@ -25,7 +25,7 @@ const demos = [
 ] as const;
 
 export function PlaygroundApp() {
-  const [activeDemo, setActiveDemo] = useState(demos[0].id);
+  const [activeDemo, setActiveDemo] = useState<(typeof demos)[number]['id']>(demos[0].id);
   const selectedDemo = demos.find(demo => demo.id === activeDemo) ?? demos[0];
 
   return (
