@@ -48,6 +48,10 @@ jobs:
           pnpm test --run
           pnpm build
 
+      - name: Prepare package metadata for GitHub Packages
+        run: |
+          node -e "const fs=require('fs'); const pkg=JSON.parse(fs.readFileSync('package.json','utf8')); pkg.name='@sinhaparth5/nucleus-state'; fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2) + '\n');"
+
       - name: Publish package to GitHub Packages
         run: pnpm publish --no-git-checks --registry https://npm.pkg.github.com
         env:
