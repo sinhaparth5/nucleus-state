@@ -1,9 +1,9 @@
 import { useCallback, useSyncExternalStore } from 'react';
-import type { Atom } from '../types';
+import type { Atom, AtomSetter, AtomUpdater } from '../types';
 
 export function useAtom<T>(
   atom: Atom<T>,
-): [T, (value: T | ((prev: T) => T)) => void] {
+): [T, AtomSetter<T>] {
   const value = useSyncExternalStore(
     atom.subscribe,
     atom.get,
@@ -11,7 +11,7 @@ export function useAtom<T>(
   );
 
   const setValue = useCallback(
-    (newValue: T | ((prev: T) => T)) => {
+    (newValue: AtomUpdater<T>) => {
       atom.set(newValue);
     },
     [atom],
@@ -30,9 +30,9 @@ export function useAtomValue<T>(atom: Atom<T>): T {
 
 export function useSetAtom<T>(
   atom: Atom<T>,
-): (value: T | ((prev: T) => T)) => void {
+): AtomSetter<T> {
   return useCallback(
-    (newValue: T | ((prev: T) => T)) => {
+    (newValue: AtomUpdater<T>) => {
       atom.set(newValue);
     },
     [atom],

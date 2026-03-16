@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createAtom } from '../../src/core/atom';
 
 // Simple localStorage mock
@@ -89,6 +89,66 @@ describe('createAtom', () => {
     const atom = createAtom('fallback', { persist: 'test-key' });
 
     expect(atom.get()).toBe('fallback');
+  });
+
+  it('does not crash when persistence is enabled without window', () => {
+    const originalWindow = globalThis.window;
+    try {
+      Object.defineProperty(globalThis, 'window', {
+        configurable: true,
+        value: undefined,
+      });
+
+      expect(() => createAtom('fallback', { persist: 'test-key' })).not.toThrow();
+    } finally {
+      Object.defineProperty(globalThis, 'window', {
+        configurable: true,
+        value: originalWindow,
+      });
+    }
+  });
+
+  it('warns when loading from storage fails', () => {
+    const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const failingStorage = {
+      getItem: () => {
+        throw new Error('load failed');
+      },
+      setItem: () => {},
+    };
+
+    const atom = createAtom('fallback', {
+      persist: 'test-key',
+      storage: failingStorage,
+    });
+
+    expect(atom.get()).toBe('fallback');
+    expect(consoleSpy).toHaveBeenCalledWith(
+      expect.stringContaining('Failed to load persisted atom'),
+      expect.any(Error),
+    );
+  });
+
+  it('warns when saving to storage fails', () => {
+    const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const failingStorage = {
+      getItem: () => null,
+      setItem: () => {
+        throw new Error('save failed');
+      },
+    };
+
+    const atom = createAtom('fallback', {
+      persist: 'test-key',
+      storage: failingStorage,
+    });
+
+    atom.set('updated');
+
+    expect(consoleSpy).toHaveBeenCalledWith(
+      expect.stringContaining('Failed to persist atom'),
+      expect.any(Error),
+    );
   });
 
   it('handles circular references', () => {

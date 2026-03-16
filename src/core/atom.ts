@@ -1,9 +1,21 @@
-import type { Atom, AtomOptions, AtomListener, Unsubscribe } from '../types';
+import type { Atom, AtomOptions, AtomListener, PersistStorage, Unsubscribe } from '../types';
 import { isFunction, tryParseJSON, isSerializable } from '../utils';
 
 // Global atom registry for devtools
 const atomRegistry = new Map<string, Atom<unknown>>();
 let atomCounter = 0;
+
+function getBrowserStorage(storage?: PersistStorage): PersistStorage | undefined {
+  if (storage) {
+    return storage;
+  }
+
+  if (typeof window === 'undefined') {
+    return undefined;
+  }
+
+  return window.localStorage;
+}
 
 // Expose devtools in development
 if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
@@ -19,14 +31,15 @@ export function createAtom<T>(
   initialValue: T,
   options: AtomOptions = {},
 ): Atom<T> {
-  const { name, persist, storage = localStorage } = options;
+  const { name, persist } = options;
+  const storage = getBrowserStorage(options.storage);
 
   // Generate unique atom ID
   const atomId = name ?? `atom_${++atomCounter}`;
 
   // Try to load persisted value
   let value = initialValue;
-  if (persist && typeof window !== 'undefined') {
+  if (persist && storage) {
     try {
       const stored = storage.getItem(persist);
       if (stored !== null) {
@@ -58,7 +71,7 @@ export function createAtom<T>(
       value = nextValue;
 
       // Persist if configured
-      if (persist && typeof window !== 'undefined') {
+      if (persist && storage) {
         try {
           if (isSerializable(value)) {
             storage.setItem(persist, JSON.stringify(value));

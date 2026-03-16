@@ -1,6 +1,22 @@
 import { createAtom } from '../core';
 import type { AtomOptions } from '../types';
 
+function getLocalStorage(): Storage | undefined {
+  if (typeof window === 'undefined') {
+    return undefined;
+  }
+
+  return window.localStorage;
+}
+
+function getSessionStorage(): Storage | undefined {
+  if (typeof window === 'undefined') {
+    return undefined;
+  }
+
+  return window.sessionStorage;
+}
+
 export function createPersistedAtom<T>(
   initialValue: T,
   key: string,
@@ -9,7 +25,7 @@ export function createPersistedAtom<T>(
   return createAtom(initialValue, {
     ...options,
     persist: key,
-    storage: localStorage,
+    storage: options.storage ?? getLocalStorage(),
   });
 }
 
@@ -21,6 +37,6 @@ export function createSessionAtom<T>(
   return createAtom(initialValue, {
     ...options,
     persist: key,
-    storage: sessionStorage,
+    storage: options.storage ?? getSessionStorage(),
   });
 }

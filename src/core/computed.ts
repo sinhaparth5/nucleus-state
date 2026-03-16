@@ -1,20 +1,53 @@
 import type { Atom } from '../types';
 
-export function createComputed<T>(computeFn: () => T): Atom<T> {
-  let value = computeFn();
-  let isStale = false;
+interface ReadableAtom<T> {
+  get(): T;
+  subscribe(listener: (value: T) => void): () => void;
+}
+
+type DependencyAtom = ReadableAtom<unknown>;
+
+function notifyListeners<T>(listeners: Set<(value: T) => void>, value: T): void {
+  listeners.forEach(listener => listener(value));
+}
+
+export function createComputed<T>(
+  computeFnOrDependencies: (() => T) | readonly DependencyAtom[],
+  maybeComputeFn?: () => T,
+): Atom<T> {
+  let dependencies: readonly DependencyAtom[] = [];
+  let computeFn: () => T;
+
+  if (typeof computeFnOrDependencies === 'function') {
+    computeFn = computeFnOrDependencies;
+  } else {
+    if (!maybeComputeFn) {
+      throw new Error('createComputed requires a compute function');
+    }
+
+    dependencies = computeFnOrDependencies;
+    computeFn = maybeComputeFn;
+  }
+
   const listeners = new Set<(value: T) => void>();
+  let value = computeFn();
+
+  if (dependencies.length > 0) {
+    dependencies.forEach(dependency => {
+      dependency.subscribe(() => {
+        const nextValue = computeFn();
+        if (Object.is(nextValue, value)) {
+          return;
+        }
+
+        value = nextValue;
+        notifyListeners(listeners, value);
+      });
+    });
+  }
 
   const atom: Atom<T> = {
     get(): T {
-      if (isStale) {
-        const newValue = computeFn();
-        if (!Object.is(newValue, value)) {
-          value = newValue;
-          listeners.forEach(listener => listener(value));
-        }
-        isStale = false;
-      }
       return value;
     },
 
@@ -24,6 +57,7 @@ export function createComputed<T>(computeFn: () => T): Atom<T> {
 
     subscribe(listener: (value: T) => void) {
       listeners.add(listener);
+
       return () => {
         listeners.delete(listener);
       };
