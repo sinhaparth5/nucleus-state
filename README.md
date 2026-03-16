@@ -183,6 +183,14 @@ Working example source files live in:
 - `examples/modal-management/App.tsx`
 - `examples/form-wizard/App.tsx`
 
+A runnable playground app also lives in `examples/playground`.
+
+Run it with:
+
+```bash
+pnpm example:dev
+```
+
 ## Requirements
 
 - React `^19.1.0`

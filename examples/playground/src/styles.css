@@ -1,0 +1,151 @@
+:root {
+  font-family: "Space Grotesk", "Segoe UI", sans-serif;
+  color: #122033;
+  background:
+    radial-gradient(circle at top, rgba(255, 196, 128, 0.45), transparent 28%),
+    linear-gradient(160deg, #fff9ef 0%, #eef6ff 100%);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+.playground-shell {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 48px 20px 64px;
+}
+
+.hero {
+  margin-bottom: 28px;
+}
+
+.eyebrow {
+  margin: 0 0 10px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #8c4b16;
+}
+
+.hero h1 {
+  margin: 0;
+  max-width: 780px;
+  font-size: clamp(2.2rem, 6vw, 4.8rem);
+  line-height: 0.94;
+}
+
+.hero-copy {
+  max-width: 720px;
+  margin: 14px 0 0;
+  font-size: 1.05rem;
+  line-height: 1.6;
+  color: #405167;
+}
+
+.demo-picker {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 14px;
+  margin-bottom: 22px;
+}
+
+.demo-tab {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  text-align: left;
+  border: 1px solid rgba(18, 32, 51, 0.12);
+  border-radius: 18px;
+  padding: 18px;
+  background: rgba(255, 255, 255, 0.72);
+  color: inherit;
+  cursor: pointer;
+  transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+}
+
+.demo-tab:hover,
+.demo-tab.active {
+  transform: translateY(-2px);
+  border-color: rgba(18, 32, 51, 0.28);
+  box-shadow: 0 14px 28px rgba(36, 66, 103, 0.12);
+}
+
+.demo-tab span {
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.demo-tab small {
+  color: #56667d;
+  line-height: 1.45;
+}
+
+.demo-stage {
+  min-height: 340px;
+}
+
+.demo-card {
+  border-radius: 28px;
+  padding: 28px;
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(18, 32, 51, 0.1);
+  box-shadow: 0 20px 60px rgba(42, 74, 112, 0.14);
+}
+
+.demo-card section {
+  display: grid;
+  gap: 16px;
+}
+
+.demo-card h1 {
+  margin: 0;
+  font-size: 1.8rem;
+}
+
+.demo-card p {
+  margin: 0;
+}
+
+.demo-card button {
+  width: fit-content;
+  border: 0;
+  border-radius: 999px;
+  padding: 10px 16px;
+  background: #122033;
+  color: #fff;
+  cursor: pointer;
+}
+
+.demo-card input {
+  width: min(100%, 320px);
+  border: 1px solid rgba(18, 32, 51, 0.18);
+  border-radius: 14px;
+  padding: 12px 14px;
+  background: rgba(255, 255, 255, 0.9);
+}
+
+@media (max-width: 640px) {
+  .playground-shell {
+    padding: 32px 16px 48px;
+  }
+
+  .demo-card {
+    padding: 20px;
+  }
+}

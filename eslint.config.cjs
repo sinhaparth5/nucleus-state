@@ -11,9 +11,13 @@ module.exports = [
   {
     ignores: [
       'dist/**/*',
+      '**/dist/**/*',
       'build/**/*',
+      '**/build/**/*',
       'coverage/**/*',
+      '**/coverage/**/*',
       'node_modules/**/*',
+      '**/node_modules/**/*',
       '*.config.js',
       '*.config.ts',
       '.github/**/*',
@@ -220,6 +224,9 @@ module.exports = [
   // Example files configuration
   {
     files: ['examples/**/*.{js,jsx,ts,tsx}'],
+    plugins: {
+      '@typescript-eslint': typescript,
+    },
     rules: {
       // Relax some rules for example files
       'no-console': 'off',

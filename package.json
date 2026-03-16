@@ -20,6 +20,8 @@
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
+    "example:dev": "pnpm --dir examples/playground dev",
+    "example:build": "pnpm --dir examples/playground build",
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest --coverage",
