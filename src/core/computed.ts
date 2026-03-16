@@ -1,13 +1,8 @@
-import type { Atom } from '../types';
+import type { Atom, AtomListener, ReadonlyAtom, Unsubscribe } from '../types';
 
-interface ReadableAtom<T> {
-  get(): T;
-  subscribe(listener: (value: T) => void): () => void;
-}
+type DependencyAtom = ReadonlyAtom<unknown>;
 
-type DependencyAtom = ReadableAtom<unknown>;
-
-function notifyListeners<T>(listeners: Set<(value: T) => void>, value: T): void {
+function notifyListeners<T>(listeners: Set<AtomListener<T>>, value: T): void {
   listeners.forEach(listener => listener(value));
 }
 
@@ -29,25 +24,57 @@ export function createComputed<T>(
     computeFn = maybeComputeFn;
   }
 
-  const listeners = new Set<(value: T) => void>();
+  const listeners = new Set<AtomListener<T>>();
+  const dependencyUnsubscribes = new Set<Unsubscribe>();
   let value = computeFn();
+  let isTrackingDependencies = false;
 
-  if (dependencies.length > 0) {
+  const recompute = (shouldNotifyListeners: boolean): T => {
+    const nextValue = computeFn();
+    if (Object.is(nextValue, value)) {
+      return value;
+    }
+
+    value = nextValue;
+
+    if (shouldNotifyListeners) {
+      notifyListeners(listeners, value);
+    }
+
+    return value;
+  };
+
+  const handleDependencyChange = () => {
+    recompute(true);
+  };
+
+  const startTrackingDependencies = (): void => {
+    if (isTrackingDependencies || dependencies.length === 0) {
+      return;
+    }
+
     dependencies.forEach(dependency => {
-      dependency.subscribe(() => {
-        const nextValue = computeFn();
-        if (Object.is(nextValue, value)) {
-          return;
-        }
-
-        value = nextValue;
-        notifyListeners(listeners, value);
-      });
+      dependencyUnsubscribes.add(dependency.subscribe(handleDependencyChange));
     });
-  }
+    isTrackingDependencies = true;
+  };
+
+  const stopTrackingDependencies = (): void => {
+    if (!isTrackingDependencies) {
+      return;
+    }
+
+    dependencyUnsubscribes.forEach(unsubscribe => unsubscribe());
+    dependencyUnsubscribes.clear();
+    isTrackingDependencies = false;
+  };
 
   const atom: Atom<T> = {
     get(): T {
+      if (!isTrackingDependencies && dependencies.length > 0) {
+        return recompute(false);
+      }
+
       return value;
     },
 
@@ -55,11 +82,20 @@ export function createComputed<T>(
       throw new Error('Cannot set value on computed atom');
     },
 
-    subscribe(listener: (value: T) => void) {
+    subscribe(listener: AtomListener<T>) {
+      if (listeners.size === 0) {
+        startTrackingDependencies();
+        recompute(false);
+      }
+
       listeners.add(listener);
 
       return () => {
         listeners.delete(listener);
+
+        if (listeners.size === 0) {
+          stopTrackingDependencies();
+        }
       };
     },
   };
