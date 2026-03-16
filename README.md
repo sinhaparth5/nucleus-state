@@ -229,6 +229,23 @@ A runnable playground is available in `examples/playground`.
 pnpm example:dev
 ```
 
+## Share on Twitter/X
+
+Use this post if you want to share the project:
+
+```text
+Built `nucleus-state` for lightweight shared React state without providers or store boilerplate.
+
+- TypeScript-first
+- atom-based API
+- computed state
+- persistence helpers
+
+Repo: https://github.com/sinhaparth5/nucleus-state
+
+#react #typescript #opensource #webdev
+```
+
 ## Requirements
 
 - React `^19.1.0`
